@@ -41,6 +41,7 @@ class Tabuleiro extends React.Component {
   }
   
   render (){
+    console.log("render state: " + this.state.xIsNext)
     let status
     switch (calculateWinner (this.state.quadrados)) {
       case true:
@@ -112,14 +113,17 @@ class Tabuleiro extends React.Component {
 
     randomPlay() {
       const quadrados = this.state.quadrados;
-      let i = Math.floor(Math.random() * (9 - 0)) + 0;
+      const player = this.state.xIsNext;
       if(this.state.gameEnded === true) {
         return alert('O jogo terminou, clique em restart para jogar novamente!');
       }
+      let i = checkNextPlay(quadrados, player);
       while(quadrados[i] !== null) {
         i = Math.floor(Math.random() * (9 - 0)) + 0;
       }
-      return this.handleClick(i);
+      if (i !== null) {
+        return this.handleClick(i);
+      }
       
     }
   
@@ -165,6 +169,35 @@ class Jogo extends React.Component {
 // function resetBoard(squares) {
 //   return squares.fill(null);
 // }
+function checkNextPlay(squares,player) {
+  if (player === true) player = 'X';
+  else player = 'O';
+  console.log(player);
+  const lines = [
+    [0,1,2],
+    [3,4,5],
+    [6,7,8],
+    [0,3,6],
+    [1,4,7],
+    [2,5,8],
+    [0,4,8],
+    [2,4,6],
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a,b,c] = lines[i];
+    switch (true) {
+      case (squares[a] !== player && squares[b] !== null && squares[a] === squares[b] && squares[c] === null):
+      return c;
+      case (squares[a] !== player && squares[c] !== null && squares[a] === squares[c] && squares[b] === null):
+        return b;
+      case (squares[b] !== player && squares[c] !== null && squares[b] === squares[c] && squares[a] === null):
+        return a;
+      default:
+        break;
+    }
+  }
+  return null;
+}
 
 function calculateWinner(squares) {
   const lines = [
