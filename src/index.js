@@ -35,20 +35,43 @@ class Tabuleiro extends React.Component {
     super (props);
     this.state = {
       quadrados: Array(9).fill(null),
-      xIsNext: true
+      xIsNext: true,
+      gameEnded: false,
     };
   }
   
   render (){
     let status
-    if (calculateWinner (this.state.quadrados)) {
-      status = "Vencendor: " + (!this.state.xIsNext ? 'X' : 'O');
-      //this.state.quadrados.fill(null);
+    switch (calculateWinner (this.state.quadrados)) {
+      case true:
+        status = "Vencendor: " + (!this.state.xIsNext ? 'X' : 'O');
+        if(this.state.gameEnded === false) {
+          this.setState({gameEnded: true});
+        }
+        break;
       
+      case 'velha':
+        status = "Deu velha";
+        if(this.state.gameEnded === false) {
+          this.setState({gameEnded: true});
+        }
+        break;
+    
+      default:
+        status = "Jogador: " + (this.state.xIsNext ? 'X' : 'O');
     }
-    else {
-       status = "Jogador: " + (this.state.xIsNext ? 'X' : 'O');
-    }
+    // if (calculateWinner (this.state.quadrados)) {
+    //   status = "Vencendor: " + (!this.state.xIsNext ? 'X' : 'O');
+    //   if(this.state.gameEnded === false) {
+    //     this.setState({gameEnded: true});
+    //   }
+    // }
+    // else if (calculateWinner(this.state.quadrados) === 'velha'){
+    //   status = "Deu Velha";
+    // }
+    // else {
+    //    status = "Jogador: " + (this.state.xIsNext ? 'X' : 'O');
+    // }
     return (
       <div>
         <div className="status">{status}</div>
@@ -67,9 +90,12 @@ class Tabuleiro extends React.Component {
           {this.renderizarQuadrado(7)}
           {this.renderizarQuadrado(8)}
         </div>
-        <div className="reset-button">
-            <button onClick={() => this.resetBoard()}>
-              Reset
+        <div className="menu">
+            <button id="button1" onClick={() => this.resetBoard()}>
+              Restart
+            </button>
+            <button id="button2" onClick={() => this.randomPlay()}>
+              Jogada Aleatoria
             </button>
         </div>
       </div>
@@ -80,8 +106,21 @@ class Tabuleiro extends React.Component {
       const quadrados = this.state.quadrados.slice();
       quadrados.fill(null);
       this.setState({
-        quadrados: quadrados, xIsNext: true
+        quadrados: quadrados, xIsNext: true, gameEnded: false
       });
+    }
+
+    randomPlay() {
+      const quadrados = this.state.quadrados;
+      let i = Math.floor(Math.random() * (9 - 0)) + 0;
+      if(this.state.gameEnded === true) {
+        return alert('O jogo terminou, clique em restart para jogar novamente!');
+      }
+      while(quadrados[i] !== null) {
+        i = Math.floor(Math.random() * (9 - 0)) + 0;
+      }
+      return this.handleClick(i);
+      
     }
   
     handleClick (i) {
@@ -141,8 +180,11 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a,b,c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return true;
     }
+  }
+  if(squares.every((i) => {return i !== null})) {
+    return 'velha';
   }
   return null;
 }

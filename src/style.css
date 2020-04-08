@@ -28,6 +28,12 @@
   margin-left: 20px;
 }
 
-.reset-button {
+.menu {
   margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+}
+
+#button1 {
+  margin-bottom: 5px;
 }
